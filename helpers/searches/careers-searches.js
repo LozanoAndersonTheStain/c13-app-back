@@ -53,19 +53,19 @@ const searchCareers = async (searchTerm = '', res = response) => {
       })
     }
 
-    const regex = new RegExp(searchTerm, 'i')
-
-    if (regex.test('true') || regex.test('false')) {
+    if (searchTerm === 'true' || searchTerm === 'false') {
       const careers = await Career.find({
-        status: regex.test('true'),
+        status: searchTerm === 'true',
       }).populate('user')
 
       return res.status(200).json({
-        queriedFields: ['status'],
+        queriedFields: [`status: ${searchTerm}`],
         quantity: careers.length,
         careers,
       })
     }
+
+    const regex = new RegExp(searchTerm, 'i')
 
     const careers = await Career.find({ name: regex, status: true }).populate(
       'user'
@@ -81,7 +81,7 @@ const searchCareers = async (searchTerm = '', res = response) => {
   }
 }
 
-const searchCareersByUser = async (searchTerm = '', res = response) => {
+const searchCareersByEntities = async (searchTerm = '', res = response) => {
   try {
     if (isObjectId(searchTerm)) {
       const career = await Career.find({
@@ -102,12 +102,8 @@ const searchCareersByUser = async (searchTerm = '', res = response) => {
     })
     const usersIds = users.map((user) => user.id)
 
-    console.log(usersIds)
-
     const courses = await Course.find({ name: regex })
     const coursesIds = courses.map((course) => course.id)
-
-    console.log(coursesIds)
 
     const careers = await Career.find({
       $or: [
@@ -133,4 +129,4 @@ const searchCareersByUser = async (searchTerm = '', res = response) => {
   }
 }
 
-module.exports = { searchCareers, searchCareersByUser }
+module.exports = { searchCareers, searchCareersByEntities }
